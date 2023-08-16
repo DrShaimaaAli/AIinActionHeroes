@@ -34,7 +34,7 @@ def obstacleDetection(distance, threshold):
         return True
 
 def stopLight():
-    global stopToggle
+    global stopToggle 
     colors = Vilib.detect_obj_parameter['color_n']
     width = Vilib.detect_obj_parameter['color_w']
     height = Vilib.detect_obj_parameter['color_h']
@@ -50,8 +50,18 @@ def conductor(variables):
     this function exists because without it we see the functions fighting eachother causing the car to stutter when its stopping
     """
     #print(variables)
-    if (variables == False):
+    if (variables[0] == False or variables[1] == False):
         px.stop()
+        if (variables[1] == False):
+            for angle in range(0, 35):
+                px.set_camera_servo2_angle(angle)
+                time.sleep(0.01)
+            for angle in range(35, -35, -1):
+                px.set_camera_servo2_angle(angle)
+                time.sleep(0.01)
+            for angle in range(-35, 0):
+                px.set_camera_servo2_angle(angle)
+                time.sleep(0.01)
     elif (stopToggle == True):
         px.stop()
     else:
@@ -67,6 +77,17 @@ def changeColor():
     color = colors[1] if colorToggle == 1 else colors[0]
     Vilib.color_detect(color)
 
+def faceDetect():
+    num_faces = Vilib.detect_obj_parameter['human_n']
+    print(num_faces)
+    if num_faces > 0:
+        #print(num_faces)
+        return False
+    else:
+        return True
+        
+
+
 
 
 
@@ -77,7 +98,8 @@ def main():
     # initialzes the camera 
     Vilib.camera_start(vflip=False,hflip=False)
     Vilib.display(local=True,web=False)
-    Vilib.qrcode_detect_switch(True)
+    Vilib.face_detect_switch(True)
+
 
     changeColor()
 
@@ -86,10 +108,11 @@ def main():
 
     # main loop
     while True:
+        
         distance = px.ultrasonic.read() # collects the distance value read by the ultrasonic sensor 
 
-        stopLight() 
-        conductor(obstacleDetection(distance,10))
+        #stopLight() 
+        conductor([obstacleDetection(distance,10),faceDetect()])
              
         grayscaleData = px.get_grayscale_data() # collects a list of 3 light sensor values
         servoAngle = lineTracking(grayscaleData,False) * SERVO_MAX 

@@ -1,10 +1,8 @@
 from picarx import Picarx
 from vilib import Vilib
 import time
-from robot_hat import TTS
 
 px = Picarx()
-tts_robot = TTS()
 SERVO_MAX = 15.0 # defining the max angle the wheels can turn
 
 
@@ -31,8 +29,8 @@ def detect_face_nod():
     # indicates the number of human faces detected.
     num_f = Vilib.detect_obj_parameter['human_n']
     if num_f > 0:
-        #speech
-        #tts_robot.say("Hi how are you")        
+        px.stop()
+        time.sleep(0.001)     
         #nodding motion
         for angle in range(35): # gradually tilt servo angle up from 0 to 34 degrees by increasing the angle by 1 degree each time
             px.set_camera_servo2_angle(angle) #sets the tilt servo angle
@@ -43,6 +41,7 @@ def detect_face_nod():
         for angle in range(-35, 0): #back up to -1 degree with 1 degree steps
             px.set_camera_servo2_angle(angle)
             time.sleep(0.01)
+        px.forward(15)
 
 
 def main():

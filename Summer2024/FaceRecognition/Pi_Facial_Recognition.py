@@ -24,7 +24,7 @@ When using cv2.CascadeClassifier, use the file path as the parameter
 
 
 
-face_cascade = cv2.CascadeClassifier('/home/car-2/Freenove_4WD_Smart_Car_Kit_for_Raspberry_Pi/Code/Server/haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('/home/pi/Freenove_4WD_Smart_Car_Kit_for_Raspberry_Pi/Code/Server/haarcascade_frontalface_default.xml')
 
 def detect_face(img):
     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

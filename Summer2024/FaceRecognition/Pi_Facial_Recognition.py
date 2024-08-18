@@ -1,5 +1,7 @@
 import cv2
 from picamera2 import Picamera2
+from servo import *
+from Led import *
 
 """
 To install necessary libraries, run the following commands in the terminal:
@@ -22,7 +24,8 @@ Save Haar Cascade file in the same file as python code
 When using cv2.CascadeClassifier, use the file path as the parameter
 """
 
-
+servo = Servo()
+led = Led()
 
 face_cascade = cv2.CascadeClassifier('/home/pi/Freenove_4WD_Smart_Car_Kit_for_Raspberry_Pi/Code/Server/haarcascade_frontalface_default.xml')
 
@@ -38,13 +41,37 @@ picam2.preview_configuration.main.size = (1280, 720)  # Full screen: 3280 2464
 picam2.preview_configuration.main.format = "RGB888"  # 8 bits
 picam2.start()
 
-while True:
-    im = picam2.capture_array()
-    im, face_count = detect_face(im)  # Receive both the image and the face count
-    print("Faces detected:", face_count)  
-    cv2.imshow("Face", im)
-    if cv2.waitKey(1) == ord('q'):
-        break
+try:
+    while True:
+        servo.setServoPwm('0', 90)
+        servo.setServoPwm('1', 130)
+        im = picam2.capture_array()
+        im, face_count = detect_face(im)  # Receive both the image and the face count
+        print("Faces detected:", face_count) 
 
-picam2.stop()
-cv2.destroyAllWindows()
+        if face_count > 0:
+            led.ledIndex(0x01, 0, 255, 0)
+            led.ledIndex(0x02, 0, 255, 0) 
+            led.ledIndex(0x04, 0, 255, 0) 
+            led.ledIndex(0x08, 0, 255, 0) 
+            led.ledIndex(0x10, 0, 255, 0) 
+            led.ledIndex(0x20, 0, 255, 0)    
+            led.ledIndex(0x40, 0, 255, 0) 
+            led.ledIndex(0x80, 0, 255, 0)  # green lights 
+        else:
+            led.ledIndex(0x01, 255, 0, 0)
+            led.ledIndex(0x02, 255, 0, 0)
+            led.ledIndex(0x04, 255, 0, 0) 
+            led.ledIndex(0x08, 255, 0, 0) 
+            led.ledIndex(0x10, 255, 0, 0) 
+            led.ledIndex(0x20, 255, 0, 0)  
+            led.ledIndex(0x40, 255, 0, 0) 
+            led.ledIndex(0x80, 255, 0, 0)  # red lights
+
+except KeyboardInterrupt:
+    print("Program stopped by user.")
+
+finally:
+    led.colorWipe(led.strip, Color(0,0,0))          #turn off the light
+    picam2.stop()
+    print("Camera stopped.")
